@@ -1,21 +1,30 @@
 import { Request, Response } from 'express';
-import User from '../models/user';
+import { UserService } from '../services/userService';
+import { CreateUserDto } from '../dto/userDto';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 
-export const getUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+export class UserController {
+  private userService: UserService;
 
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
-    const user = await User.create({ name, email, password });
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+  constructor() {
+    this.userService = new UserService();
   }
-};
+
+  createUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const createUserDto = plainToInstance(CreateUserDto, req.body);
+      const errors = await validate(createUserDto);
+
+      if (errors.length > 0) {
+        res.status(400).json(errors);
+        return;
+      }
+
+      const user = await this.userService.createUser(createUserDto);
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(500).json({ message: (error as Record<string, string>).message });
+    }
+  };
+}
