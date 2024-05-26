@@ -13,8 +13,8 @@ export class UserRepository {
     return User.findByPk(id);
   }
 
-  async update(id: number, user: Partial<User>): Promise<[number]> {
-    return User.update(user, { where: { id } });
+  async update(id: number, user: Partial<User>): Promise<[number, User[]]> {
+    return User.update(user, { where: { id }, returning: true });
   }
 
   async delete(id: number): Promise<number> {

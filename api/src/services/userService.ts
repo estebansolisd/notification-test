@@ -21,7 +21,7 @@ export class UserService {
     return this.userRepository.findById(id);
   }
 
-  async updateUser(id: number, updateUserDto: Partial<CreateUserDto>): Promise<[number]> {
+  async updateUser(id: number, updateUserDto: Partial<CreateUserDto>): Promise<[number, IUser[]]> {
     return this.userRepository.update(id, updateUserDto);
   }
 
