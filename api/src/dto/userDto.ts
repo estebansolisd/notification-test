@@ -1,22 +1,7 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-
 export class CreateUserDto {
-  @IsNotEmpty()
-  @IsString()
   name!: string;
-  
-  @IsNotEmpty()
-  @IsEmail()
   email!: string;
-
-  @IsNotEmpty()
-  @IsString()
-  password!: string;
-
-  constructor(name: string, email: string, password:string) {
-    this.name = name;
-    this.email = email;
-    this.password = password;
-  }
-
+  phoneNumber!: string;
+  subscribed!: string[];
+  channels!: string[];
 }

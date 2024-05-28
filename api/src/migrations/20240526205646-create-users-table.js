@@ -6,30 +6,27 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
       },
-      password: {
+      phoneNumber: {
         type: Sequelize.STRING,
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('now')
       },
-      updatedAt: {
-        type: Sequelize.DATE,
+      subscribed: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
-        defaultValue: Sequelize.fn('now')
+      },
+      channels: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
       }
     });
   },

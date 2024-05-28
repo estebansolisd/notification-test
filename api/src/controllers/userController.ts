@@ -1,26 +1,15 @@
 import { Request, Response } from "express";
-import { CreateUserDto } from "../dto/userDto";
 import { UserService } from "../services/userService";
+import { CreateUserDto } from "../dto/userDto";
+import { IUser } from "../interfaces/userInterface";
 
 export class UserController {
-  private userService: UserService;
-
-  constructor() {
-    this.userService = new UserService();
-  }
+  private userService = new UserService();
 
   createUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { name, email, password } = req.body;
-
-      // Basic validation
-      if (!name || !password || !email) {
-        res.status(400).json({ message: "Missing required fields" });
-        return;
-      }
-
-      const createUserDto = new CreateUserDto(name, email, password);
-      const user = await this.userService.createUser(createUserDto);
+      const createUserDto: CreateUserDto = req.body;
+      const user: IUser = await this.userService.createUser(createUserDto);
       res.status(201).json(user);
     } catch (error) {
       res
@@ -31,7 +20,7 @@ export class UserController {
 
   getUsers = async (req: Request, res: Response): Promise<void> => {
     try {
-      const users = await this.userService.getUsers();
+      const users: IUser[] = await this.userService.getUsers();
       res.status(200).json(users);
     } catch (error) {
       res
@@ -42,9 +31,8 @@ export class UserController {
 
   getUserById = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.params;
-      const user = await this.userService.getUserById(parseInt(id, 10));
-
+      const userId = parseInt(req.params.id);
+      const user: IUser | null = await this.userService.getUserById(userId);
       if (user) {
         res.status(200).json(user);
       } else {
@@ -59,19 +47,16 @@ export class UserController {
 
   updateUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.params;
-      const { firstName, lastName, email } = req.body;
-
-      const updateUserDto = { firstName, lastName, email };
-      const [updatedRowsCount, updatedRows] = await this.userService.updateUser(
-        parseInt(id, 10),
+      const userId = parseInt(req.params.id);
+      const updateUserDto: Partial<CreateUserDto> = req.body;
+      const [rowsAffected, updatedUsers] = await this.userService.updateUser(
+        userId,
         updateUserDto
       );
-
-      if (updatedRowsCount === 0) {
-        res.status(404).json({ message: "User not found" });
+      if (updatedUsers?.length) {
+        res.status(200).json(updatedUsers);
       } else {
-        res.status(200).json(updatedRows[0]);
+        res.status(404).json({ message: "User not found" });
       }
     } catch (error) {
       res
@@ -82,15 +67,14 @@ export class UserController {
 
   deleteUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.params;
-      const deletedRowsCount = await this.userService.deleteUser(
-        parseInt(id, 10)
+      const userId = parseInt(req.params.id);
+      const destroyedRows: number = await this.userService.deleteUser(
+        userId
       );
-
-      if (deletedRowsCount === 0) {
-        res.status(404).json({ message: "User not found" });
+      if (destroyedRows) {
+        res.status(200).json(destroyedRows);
       } else {
-        res.status(204).json();
+        res.status(404).json({ message: "User not found" });
       }
     } catch (error) {
       res

@@ -1,46 +1,46 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'users',
-  timestamps: false
+  tableName: 'logs',
+  timestamps: true
 })
-class User extends Model {
+class Log extends Model {
   @Column({
     type: DataType.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    allowNull: false
   })
-  id!: number;
+  userId!: number;
 
   @Column({
     type: DataType.STRING,
     allowNull: false
   })
-  name!: string;
+  userName!: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false
   })
-  email!: string;
+  messageType!: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false
   })
-  phoneNumber!: string;
+  notificationType!: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
+    type: DataType.STRING,
     allowNull: false
   })
-  subscribed!: string[];
+  content!: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false
+    type: DataType.DATE,
+    allowNull: false,
+    defaultValue: DataType.NOW
   })
-  channels!: string[];
+  sentAt!: Date;
 }
 
-export default User;
+export default Log;
