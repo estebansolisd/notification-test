@@ -1,36 +1,97 @@
-import React, { useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from "react";
 import axios from "@/utils/axiosInstance";
-
+import { User } from "@/types";
+const DEFAULT_FORM = {
+  messageType: "Sports",
+  content: "",
+  userId: "",
+};
 
 const Form: React.FC = () => {
-  const [category, setCategory] = useState<string>('Sports');
-  const [message, setMessage] = useState<string>('');
+  const [form, setForm] = useState(DEFAULT_FORM);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoadingUsers(true)
+        const { data } = await axios.get("/users");
+        if (data.length) {
+          setUsers(data);
+          setForm(prev => ({...prev, userId: data[0].id}))
+        }
+      } catch (err) {
+        console.error(err, "error loading users");
+      }
+      setLoadingUsers(false)
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim()) {
+    if (form.content.trim() && form.userId && form.messageType) {
       try {
-        await axios.post('/notifications', { message, category });
-        setCategory("Sports")
-        setCategory("")
+        await axios.post("/notifications/send", form);
+        setForm(DEFAULT_FORM);
       } catch (error) {
-        console.error('Error sending message:', error);
+        console.error("Error sending message:", error);
       }
     } else {
-      alert('Message cannot be empty');
+      alert("You should select all the fields");
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-white shadow-md rounded">
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="category">
+        {loadingUsers ? (
+          <p>Loading users..</p>
+        ) : (
+          <>
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="userId"
+            >
+              User
+            </label>
+            <select
+              id="userId"
+              value={form.userId}
+              name="userId"
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              {users.map((user) => (
+                <option value={user.id} key={`user-${user.id}`}>{user.name}</option>
+              ))}
+            </select>
+          </>
+        )}
+      </div>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="messageType"
+        >
           Category
         </label>
         <select
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          id="messageType"
+          value={form.messageType}
+          name="messageType"
+          onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         >
           <option value="Sports">Sports</option>
@@ -39,13 +100,17 @@ const Form: React.FC = () => {
         </select>
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="message">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="content"
+        >
           Message
         </label>
         <textarea
-          id="message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          id="content"
+          value={form.content}
+          name="content"
+          onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           rows={4}
         />

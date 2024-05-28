@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Log } from "@/types";
 import axios from "@/utils/axiosInstance";
+import { v4 } from "uuid"
 
 const LogHistory: React.FC = () => {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -8,8 +9,9 @@ const LogHistory: React.FC = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const response = await axios.get("/logs");
-        setLogs(response.data);
+        const { data } = await axios.get("/logs");
+        const sortedlogs = (data as Log[]).sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+        setLogs(sortedlogs)
       } catch (error) {
         console.error("Error fetching logs:", error);
       }
@@ -17,24 +19,51 @@ const LogHistory: React.FC = () => {
 
     fetchLogs();
   }, []);
-  
+
   return (
-    <div className="p-4 bg-white shadow-md rounded mt-4">
-      <h2 className="text-xl font-bold mb-4">Log History</h2>
-      {logs.length === 0 ? (
-        <p className="text-gray-500">No logs available.</p>
-      ) : (
-        <ul className="list-disc pl-5">
-          {logs.map((log) => (
-            <li key={log.id} className="mb-2">
-              <div className="text-gray-700">
-                <strong>{log.category}</strong> - {log.message}{" "}
-                <span className="text-gray-500 text-sm">({log.timestamp})</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="container mx-auto px-4 bg-white shadow-md rounded">
+      <h2 className="text-2xl font-semibold mb-4">Log History</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full my-6">
+          <thead>
+            <tr className="bg-gray-800 text-white">
+              <th className="w-1/4 py-3 px-4 uppercase font-semibold text-sm">
+                User Id
+              </th>
+              <th className="w-1/2 py-3 px-4 uppercase font-semibold text-sm">
+                User Name
+              </th>
+              <th className="w-1/4 py-3 px-4 uppercase font-semibold text-sm">
+                Message Type
+              </th>
+              <th className="w-1/4 py-3 px-4 uppercase font-semibold text-sm">
+                Notification Type
+              </th>
+              <th className="w-1/4 py-3 px-4 uppercase font-semibold text-sm">
+                Message Content
+              </th>
+              <th className="w-1/4 py-3 px-4 uppercase font-semibold text-sm">
+                Sent At
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map((log) => (
+              <tr
+                key={v4()}
+                className="bg-gray-100 border-b hover:bg-gray-200"
+              >
+                <td className="py-3 px-4">{log.userId}</td>
+                <td className="py-3 px-4">{log.userName}</td>
+                <td className="py-3 px-4">{log.messageType}</td>
+                <td className="py-3 px-4">{log.notificationType}</td>
+                <td className="py-3 px-4">{log.content}</td>
+                <td className="py-3 px-4">{new Date(log.sentAt).toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

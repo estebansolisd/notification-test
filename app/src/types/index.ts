@@ -1,11 +1,18 @@
 export interface Log {
-  id: number;
-  category: string;
-  message: string;
-  timestamp: string;
+  userId: number;
+  userName: string;
+  messageType: string;
+  notificationType: string;
+  content: string;
+  sentAt: string;
 }
 
 export interface MessageForm {
   category: string;
   message: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
 }
