@@ -1,29 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Log } from "@/types";
-import axios from "@/utils/axiosInstance";
+import React from "react";
 import { v4 } from "uuid"
+import { Log } from "@/types";
 
-const LogHistory: React.FC = () => {
-  const [logs, setLogs] = useState<Log[]>([]);
+interface LogHistoryProps {
+  logs: Log[]
+}
 
-  useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const { data } = await axios.get("/logs");
-        const sortedlogs = (data as Log[]).sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
-        setLogs(sortedlogs)
-      } catch (error) {
-        console.error("Error fetching logs:", error);
-      }
-    };
-
-    fetchLogs();
-  }, []);
-
+const LogHistory: React.FC<LogHistoryProps> = ({ logs }) => {
   return (
     <div className="container mx-auto px-4 bg-white shadow-md rounded">
       <h2 className="text-2xl font-semibold mb-4">Log History</h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto h-[500px]">
         <table className="min-w-full my-6">
           <thead>
             <tr className="bg-gray-800 text-white">

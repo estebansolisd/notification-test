@@ -1,16 +1,17 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import axios from "@/utils/axiosInstance";
 import { User } from "@/types";
 const DEFAULT_FORM = {
-  messageType: "Sports",
+  messageType: "",
   content: "",
   userId: "",
 };
 
-const Form: React.FC = () => {
+interface FormProps {
+  fetchLogs: () => Promise<void>;
+}
+
+const Form: React.FC<FormProps> = ({ fetchLogs }) => {
   const [form, setForm] = useState(DEFAULT_FORM);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -18,16 +19,13 @@ const Form: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        setLoadingUsers(true)
+        setLoadingUsers(true);
         const { data } = await axios.get("/users");
-        if (data.length) {
-          setUsers(data);
-          setForm(prev => ({...prev, userId: data[0].id}))
-        }
+        setUsers(data);
       } catch (err) {
         console.error(err, "error loading users");
       }
-      setLoadingUsers(false)
+      setLoadingUsers(false);
     };
 
     fetchUsers();
@@ -38,6 +36,7 @@ const Form: React.FC = () => {
     if (form.content.trim() && form.userId && form.messageType) {
       try {
         await axios.post("/notifications/send", form);
+        fetchLogs();
         setForm(DEFAULT_FORM);
       } catch (error) {
         console.error("Error sending message:", error);
@@ -47,7 +46,11 @@ const Form: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
 
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -73,9 +76,16 @@ const Form: React.FC = () => {
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
-              {users.map((user) => (
-                <option value={user.id} key={`user-${user.id}`}>{user.name}</option>
-              ))}
+              <>
+                <option value="" selected hidden disabled>
+                  Please select a user...
+                </option>
+                {...users.map((user) => (
+                  <option value={user.id} key={`user-${user.id}`}>
+                    {user.name}
+                  </option>
+                ))}
+              </>
             </select>
           </>
         )}
@@ -94,6 +104,9 @@ const Form: React.FC = () => {
           onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         >
+          <option value="" selected hidden disabled>
+            Please select a category...
+          </option>
           <option value="Sports">Sports</option>
           <option value="Finance">Finance</option>
           <option value="Movies">Movies</option>
