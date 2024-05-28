@@ -29,8 +29,7 @@ services:
     volumes:
       - ./api:/app
       - /app/node_modules
-    command: bash -c "npx sequelize-cli db:migrate && npm run dev"
-
+    command: bash -c "npx sequelize-cli db:migrate && npm run seed:all && npm run dev"
 
 volumes:
   db-data:

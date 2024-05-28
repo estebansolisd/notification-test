@@ -30,12 +30,14 @@ class User extends Model {
   })
   phoneNumber!: string;
 
+  // I know this can it be other model/table but it takes more time
   @Column({
     type: DataType.ARRAY(DataType.STRING),
     allowNull: false
   })
   subscribed!: string[];
 
+  // I know this can it be other model/table but it takes more time
   @Column({
     type: DataType.ARRAY(DataType.STRING),
     allowNull: false
