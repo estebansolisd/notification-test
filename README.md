@@ -1,5 +1,10 @@
 ## How to run this project
 
+Requirements:
+- Docker version 20.10.22, build 3a2c30b
+- Npm 10.5.0
+- Node 20.12.0
+
 1. First step
 You shoud have install Docker and run the following command:
 docker compose --env-file ./api/.env up
