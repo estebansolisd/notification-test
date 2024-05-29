@@ -1,6 +1,7 @@
 ## How to run this project
 
 1. First step
+You shoud have install Docker and run the following command:
 docker compose --env-file ./api/.env up
 
 You should wait like 40 seconds until the seeder is completed because it has to wait the database
